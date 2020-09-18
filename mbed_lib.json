@@ -1,0 +1,16 @@
+{
+    "name": "sdhi",
+    "config": {
+        "CH": null,
+        "FSFAT_SDCARD_INSTALLED": 1,
+        "TEST_BUFFER": 8192
+    },
+    "target_overrides": {
+        "VK_RZ_A1H": {
+            "CH": 0
+        },
+        "VK_RZ_A1LU": {
+            "CH": 1
+        }
+    }
+}
