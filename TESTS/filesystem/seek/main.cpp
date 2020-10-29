@@ -23,6 +23,10 @@
 
 using namespace utest::v1;
 
+#if !(DEVICE_SDHI)
+#error [NOT_SUPPORTED] No DEVICE_SDHI support for this target.
+#else
+
 // test configuration
 #ifndef MBED_TEST_FILESYSTEM
 #define MBED_TEST_FILESYSTEM FATFileSystem
@@ -654,3 +658,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif //!(DEVICE_SDHI)
