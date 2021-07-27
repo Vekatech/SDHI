@@ -104,6 +104,9 @@ static const PinName SDHIpin_Common[SDHI_COUNT][SDHI_PINS_COMMON] = { /* WP & CD
 #elif defined(TARGET_VK_RZ_A1LU)
    {P3_6, P3_7},
    {P7_1, P7_0}
+#elif defined(TARGET_VK_RZ_A1R3)
+   {P3_6, P3_7},
+   {  NC, P7_0}
 #else
  #error RZ_SDHI driver does not support this TARGET
 #endif
@@ -113,7 +116,7 @@ static const PinName SDHIpin_serial[SDHI_COUNT][SDHI_PINS_SERIAL] = { /* CLK CMD
 #if defined(TARGET_VK_RZ_A1H)
     {P4_11, P4_12, P4_13},
     {P3_11, P3_12, P3_13}
-#elif defined(TARGET_VK_RZ_A1LU)
+#elif (defined(TARGET_VK_RZ_A1LU) || defined(TARGET_VK_RZ_A1R3))
     {P3_3, P3_2, P3_4},
     {P7_4, P7_5, P7_3}
 #else
@@ -125,7 +128,7 @@ static const PinName SDHIpin_parallel[SDHI_COUNT][SDHI_PINS_PARALLEL] = { /* CLK
 #if defined(TARGET_VK_RZ_A1H)
     {P4_10, P4_11, P4_12, P4_13, P4_14, P4_15},
     {P3_10, P3_11, P3_12, P3_13, P3_14, P3_15}
-#elif defined(TARGET_VK_RZ_A1LU)
+#elif (defined(TARGET_VK_RZ_A1LU) || defined(TARGET_VK_RZ_A1R3))
     {P3_3, P3_2, P3_4, P3_5, P3_0, P3_1},
     {P7_4, P7_5, P7_3, P7_2, P7_7, P7_6}
 #else
@@ -154,7 +157,6 @@ static const PinMap PinMap_SDHI_PIN[] = {
     {P3_13 , SDHI_1, 7}, /* SD_CMD_1 */
     {P3_14 , SDHI_1, 7}, /* SD_D3_1  */
     {P3_15 , SDHI_1, 7}, /* SD_D2_1  */
-    {NC    , NC    , 0}
 #elif defined(TARGET_VK_RZ_A1LU)
     //{P3_7  , SDHI_0, 2}, /* SD_CD_0  can be used if SDRAM is not soldered */
     //{P3_6  , SDHI_0, 2}, /* SD_WP_0  can be used if SDRAM is not soldered */
@@ -173,10 +175,27 @@ static const PinMap PinMap_SDHI_PIN[] = {
     {P7_5  , SDHI_1, 3}, /* SD_CMD_1 */
     {P7_6  , SDHI_1, 3}, /* SD_D3_1  */
     {P7_7  , SDHI_1, 3}, /* SD_D2_1  */
-    {NC    , NC    , 0}
+#elif defined(TARGET_VK_RZ_A1R3)
+    //{P3_7  , SDHI_0, 2}, /* SD_CD_0  can be used if ETHERNET PHY is not soldered */
+    //{P3_6  , SDHI_0, 2}, /* SD_WP_0  can be used if ETHERNET PHY is not soldered */
+    //{P3_5  , SDHI_0, 2}, /* SD_D1_0  can be used if ETHERNET PHY is not soldered */
+    //{P3_4  , SDHI_0, 2}, /* SD_D0_0  can be used if ETHERNET PHY is not soldered */
+    //{P3_3  , SDHI_0, 2}, /* SD_CLK_0 can be used if ETHERNET PHY is not soldered */
+    //{P3_2  , SDHI_0, 2}, /* SD_CMD_0 can be used if ETHERNET PHY is not soldered */
+    //{P3_1  , SDHI_0, 2}, /* SD_D3_0  can be used if ETHERNET PHY is not soldered */
+    //{P3_0  , SDHI_0, 2}, /* SD_D2_0  can be used if ETHERNET PHY is not soldered */
+    /*----------------*/
+    {P7_0  , SDHI_1, 3}, /* SD_CD_1  */
+    {P7_2  , SDHI_1, 3}, /* SD_D1_1  */
+    {P7_3  , SDHI_1, 3}, /* SD_D0_1  */
+    {P7_4  , SDHI_1, 3}, /* SD_CLK_1 */
+    {P7_5  , SDHI_1, 3}, /* SD_CMD_1 */
+    {P7_6  , SDHI_1, 3}, /* SD_D3_1  */
+    {P7_7  , SDHI_1, 3}, /* SD_D2_1  */	
 #else
 #error RZ_SDHI driver does not support this TARGET
 #endif
+    {NC    , NC    , 0}
 };
 
 
@@ -264,7 +283,8 @@ int sddev_init(int sd_port)
     {
         if ( pinmap_peripheral(SDHIpin_Common[sd_port][no], PinMap_SDHI_PIN ) != sd_port)
         {
-            return SD_ERR;
+            if(SDHIpin_Common[sd_port][no] != NC)
+                return SD_ERR;
         }
         pinmap_pinout(SDHIpin_Common[sd_port][no], PinMap_SDHI_PIN);
     }
@@ -303,7 +323,7 @@ int sddev_init(int sd_port)
 #endif
 
     /* ---- wait card detect ---- */
-    osDelay(100);    /* wait 100ms */
+    osDelay(1000);    /* wait 1000ms */
 
     return SD_OK;
 }
